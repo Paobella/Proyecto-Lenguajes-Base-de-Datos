@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+    <head th:fragment="head">
+        <title>PlushieShop</title>
+        <meta charset="UTF-8"/>
+        <link th:href="@{/css/style.css}" rel="stylesheet" />  
+        <!-- Enlace al archivo CSS de boxicons -->
+        <link th:href="@{https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css}" rel="stylesheet" />
+        <!-- Enlace al archivo CSS de Font Awesome -->
+        <link th:href="@{https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css}" rel="stylesheet" />
+        <!-- Inclusión del script de Font Awesome -->
+        <script th:src="@{https://kit.fontawesome.com/f6dcf461c1.js}" crossorigin="anonymous"></script>
+        <script th:src="@{/js/script.js}" th:defer="defer"></script>
+        <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+        <script th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
+        <script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+
+    </head>
+    
+    <body>
+        <header> 
+            <section th:replace="~{producto/fragmentos :: categoriasTabs}"/>
+        </header>
+        <footer class="footer">
+            <div class="footer-title">PlushieShop</div>
+            <div class="footer-text">Todos los derechos reservados 2024</div>
+        </footer>
+    </body>
+</html>

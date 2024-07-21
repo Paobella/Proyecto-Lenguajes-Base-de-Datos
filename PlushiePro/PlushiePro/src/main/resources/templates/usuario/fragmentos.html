@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+    <head th:replace="~{layout/plantilla :: head}">
+        <title>PlushieShop</title>
+    </head>
+    <body>
+
+      <section th:fragment="listadoUsuario" id="usuarios">
+    <div class="container-info">
+        <div th:if="${usuario != null}" class="personal-info">
+            <h1 style="font-size: 45px; margin-left:0px;">Mi cuenta</h1>
+            <h2 style="margin-top:30px; margin-bottom: 20px;">Información personal</h2>
+            <div>
+                <span>Nombre de usuario:</span>
+                <span th:text="${usuario.username}"></span>
+            </div>
+            <div>
+                <span>Correo asociado:</span>
+                <span th:text="${usuario.correo}"></span>
+            </div>
+            <div>
+                <span>Tarjeta registrada:</span>
+                <span th:text="${usuario.tarjeta}"></span>
+            </div>
+            <div>
+                <span>Fecha de vencimiento:</span>
+                <span th:text="${#dates.format(usuario.fecha, 'dd/MM/yyyy')}"></span> <!-- Formatear la fecha -->
+            </div>
+            <div>
+                <ul>
+                    <li sec:authorize="isAuthenticated()">
+                        <form method="post" th:action="@{/logout}">
+                            <button class="register">Cerrar sesión</button>
+                        </form>
+                    </li>
+                    
+                    <li sec:authorize="hasRole('ROLE_USER')">
+
+
+                        <form th:action="@{/factura/listado}">
+                            <button class="register" style="margin-top:20px; margin-left:1px; z-index: 1">
+                                Ver facturas
+                            </button>
+                        </form>
+
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+        
+      
+       
+    </body>
+</html>

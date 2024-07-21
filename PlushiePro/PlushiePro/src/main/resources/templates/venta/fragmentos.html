@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{layout/plantilla :: head}">
+        <title>PlushieShop</title>
+           <link th:href="@{/css/style.css}" rel="stylesheet" />  
+          <script th:src="@{/js/script.js}" th:defer="defer"></script>
+
+    </head>
+    <body>
+        <section th:fragment="listadoVentas" id="ventas">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>Registro de pedidos realizados</h4>
+                            </div>
+                            <div th:if="${ventas != null and !ventas.empty}">
+                                <table class="custom-table">
+                                    <thead class="table-dark">
+                                        <tr><th>#</th>
+                                            <th>ID Factura</th>
+                                            <th>ID Producto</th>
+                                            <th>Precio</th>
+                                            <th>Cantidad</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="venta, contador : ${ventas}">
+                                            <td>[[${contador.count}]]</td>
+                                            <td>[[${venta.idFactura}]]</td>
+                                            <td>[[${venta.idProducto}]]</td>
+                                            <td>[[${venta.Precio}]]</td>
+                                            <td>[[${venta.cantidad}]]</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="text-center p-2" th:if="${ventas == null or ventas.empty}">
+                                <span>[[#{lista.vacia}]]</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </body>
+</html>

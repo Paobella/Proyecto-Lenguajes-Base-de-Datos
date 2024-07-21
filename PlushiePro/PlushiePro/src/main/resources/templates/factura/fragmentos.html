@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{layout/plantilla :: head}">
+        <title>PlushieShop</title>
+        <link th:href="@{/css/style.css}" rel="stylesheet" />  
+        <script th:src="@{/js/script.js}" th:defer="defer"></script>
+
+    </head>
+    <body>
+        <section th:fragment="listadoFactura" id="facturas">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Registro de pedidos realizados</h4>
+                    </div>
+                    <div th:if="${facturas != null and !facturas.empty}">
+                        <table class="custom-table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>ID Factura</th>
+                                    <th>ID Usuario</th>
+                                    <th>Fecha</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="factura, contador : ${facturas}">
+                                    <td>[[${contador.count}]]</td>
+                                    <td>[[${factura.idFactura}]]</td>
+                                    <td>[[${factura.idUsuario}]]</td>
+                                    <td>[[${factura.fecha}]]</td>
+                                    <td>[[${factura.total}]]</td>
+                                    <td>[[${factura.estado}]]</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center p-2" th:if="${facturas == null or facturas.empty}">
+                        <span>[[#{lista.vacia}]]</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    </body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://thymeleaf.org/extras/spring-security">
+    <head th:replace="~{layout/plantilla :: head}">
+        <title>PlushieShop</title>
+    </head>
+    <body>
+      
+   <section th:fragment="listadoProductos" id="productos">
+    <div class="container">
+        <div id="resultsBlock"></div>
+        <div class="row">
+            <div class="col-md-9">
+                <div>
+                    <div>
+                        <h1>Recomendados</h1>
+                    </div>
+                    <div class="wrapper">
+                        <i id="left" class="fa-solid fa-angle-left"></i>
+                        <ul class="carousel">
+                            <div th:if="${productos != null and !productos.empty}" th:each="producto : ${productos}">
+                                <li class="card">
+                                    <div class="img"><img th:src="@{${producto.rutaImagen}}" alt="Imagen del producto"/></div>
+                                    <div class="card-body">
+                                        <div class="details">
+                                            <h2 class="card-text" th:text="${producto.nombre}"></h2>
+                                            <span class="categories" th:text="'Categoría: ' + ${producto.categoria.nombre}"></span>
+                                            <span class="price" th:text="'Precio: ' + '$' + ${#numbers.formatDecimal(producto.precio, 1, 'DEFAULT', 2, 'DEFAULT')}"></span>
+                                        </div>
+                                        <div>
+                                            <form>
+                                                <input type="hidden" name="texto" th:value="${producto.idProducto}"/>
+                                                <input type="hidden" name="texto" th:value="${producto.existencias}"/> 
+                                                <div sec:authorize="isAuthenticated()">
+                                                    <button class="btn" onclick="Toggle2(this); addCard(this.form)" type="button"><i class="far fa-heart"></i></button>
+                                                </div>
+                                                <div sec:authorize="!isAuthenticated()">
+                                                <button class="btn" onclick="toggleAndAddCard(this);" type="button"><i class="far fa-heart"></i></button>
+                                                </div>
+                                               
+                                            </form>
+                                        </div>
+                                    </div>
+                                </li>
+                            </div>
+                        </ul>
+                        <i id="right" class="fa-solid fa-angle-right"></i>
+                    </div>
+                    <div class="text-center p-2" th:if="${productos == null or productos.empty}">
+                        <span>No hay productos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+        
+        <div th:fragment="verCarrito" th:unless="${#lists.isEmpty(listaItems)}"> 
+            <form action="/carrito/listado" class="circle-button-container">
+                <button type="submit" class="circle-button">
+                    [[${listaTotal}]]
+                </button>
+            </form>
+        </div>
+        
+ 
+    <section th:fragment="listadoCarrito" id="items">
+    <div class="container">
+        <h1 style="font-size: 45px;">Carrito</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-9">
+                <div class="card-container-custom">
+                    <!-- Loop through items -->
+                    <div class="card-custom" th:each="item, contador : ${items}">
+                        <div class="card">
+                            <div class="card-body-custom">
+                                <div class="img"><img th:src="${item.rutaImagen}" alt="Imagen del producto"/></div>
+                                <div class="title-and-description">
+                                <h2 class="card-title-custom" style="margin-bottom: 10px; font-size:20px; font-weight: bold;">[[${item.nombre}]]</h2>
+                                <h5 class="card-title-custom">[[${item.descripcion}]]</h5>
+                            </div>
+                                <p class="card-text-custom">$[[${item.precio}]]</p>
+                                <a th:href="@{/carrito/eliminar/}+${item.idProducto}" class="btn-custom btn-danger-custom"> <i class='fas fa-trash'></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End loop -->
+                    <div class="text-carrito" th:if="${items== null or items.empty}">
+                        No hay elementos en el carrito
+                    </div>
+                </div>
+            </div>
+          
+            <div class="col-md-3">
+               <div class="mini-table">
+                    <table>
+                        <tr>
+                            <td>Subtotal: </td>
+                            <td>$[[${carritoTotal}]]</td>
+                        </tr>
+                        <tr>
+                            <td>Total: </td>
+                            <td>$[[${carritoTotal}]]</td>
+                        </tr>
+                    </table>
+                </div>
+                <!-- Buy button -->
+                <div class="text-center bg-info text-white mb-3">
+                    <div class="card-body">
+                        <a th:href="@{/facturar/carrito}" class="btn btn-buy">
+                            <i class='fas fa-fordward'></i> Buy
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+        
+    </body>
+</html>

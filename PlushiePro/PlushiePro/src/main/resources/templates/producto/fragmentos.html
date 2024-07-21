@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{layout/plantilla :: head}">
+        <title>PlushieShop</title>
+           <link th:href="@{/css/style.css}" rel="stylesheet" />  
+          <script th:src="@{/js/script.js}" th:defer="defer"></script>
+
+    </head>
+    <body>
+        
+           <section th:fragment="categoriasTabs" id="categorias">
+     <nav>
+                <div class="navbar">
+                    <i class='bx bx-menu'></i>
+                    <div class="logo">
+                        <img src="\images\Logo.png" alt="Logo"/>
+                        <a th:href="@{/}">PlushieShop</a>
+                    </div>
+                    <div class="nav-links">
+                        <div class="sidebar-logo">
+                            <span class="logo-name">PlushieShop</span>
+                            <i class='bx bx-x' ></i>
+                        </div>
+                        <ul class="links">
+                            <li>
+                                <a href="#">Animes</a>
+                                <i class='bx bxs-chevron-down htmlcss-arrow arrow  '></i>
+                                <ul class="htmlCss-sub-menu sub-menu">
+                                    <li><a th:href="@{/producto/listado/1}">Naruto</a></li>
+                                    <li><a th:href="@{/producto/listado/2}">Dragon Ball</a></li>
+                                    <li><a th:href="@{/producto/listado/3}">One Piece</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Videojuegos</a>
+                                <i class='bx bxs-chevron-down js-arrow arrow '></i>
+                                <ul class="js-sub-menu sub-menu">
+                                    <li><a th:href="@{/producto/listado/4}">Mario Bros</a></li>
+                                    <li><a th:href="@{/producto/listado/5}">Five night at Freddy's</a></li>
+                                    <li><a th:href="@{/producto/listado/6}">Plantas vs Zombies</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Osos</a>
+                                <i class='bx bxs-chevron-down js-arrow arrow '></i>
+                                <ul class="js-sub-menu sub-menu">
+                                    <li><a th:href="@{/producto/listado/7}">Polar</a></li>
+                                    <li><a th:href="@{/producto/listado/8}">Panda</a></li>
+                                    <li><a th:href="@{/producto/listado/9}">Escandalosos</a></li>
+                                    <li><a th:href="@{/producto/listado/10}">Otros</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">My Melody</a>
+                                <i class='bx bxs-chevron-down js-arrow arrow '></i>
+                                <ul class="js-sub-menu sub-menu">
+                                    <li><a th:href="@{/producto/listado/11}">My Melody</a></li>
+                                    <li><a th:href="@{/producto/listado/12}">Cinnamoroll</a></li>
+                                    <li><a th:href="@{/producto/listado/13}">Kuromi</a></li>
+                                    <li><a th:href="@{/producto/listado/14}">Pompompuri</a></li>
+                                    <li><a th:href="@{/producto/listado/15}">Hello Kitty</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <div>
+                                  <form method="GET" th:action="@{/producto/listado}" class="search-bar" >
+                            <input type="text" name="nombre" placeholder="Buscar" value="" />
+                            <button type="submit"><i class='bx bx-search'></i></button>
+                        </form>
+                        </div>
+
+                    </div>
+                    <div class="cart">
+                        <a th:href="@{/carrito/listado}">
+                            <img src="\images\carrito.png" alt="Carrito"/>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+                <nav class="navbar-second flex">
+                <div class="right flex">
+                    <ul>
+                         <li class="login" sec:authorize="hasRole('ROLE_ADMIN')">
+                            <a th:href="@{/venta/listado}">Pedidos</a>
+                            
+                        </li>
+                        <li sec:authorize="isAuthenticated()">
+                            <a th:href="@{/usuario/listado}">Mi cuenta</a>
+                            
+                        </li>
+                        <li class="login" sec:authorize="!isAuthenticated()">
+                            <a th:href="@{/login}">Iniciar sesión</a>
+                        </li>
+
+                        <li>
+                            <div class="register" sec:authorize="!isAuthenticated()">
+                                <a th:href="@{/registro/nuevo}">Registrarse</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+</section>
+        
+        <section th:fragment="listadoProductos" id="productos">
+            <div class="container">
+                <div id="resultsBlock"></div>
+                <div class="row">
+                    <div class="col-md-9">
+                        <div>
+                            <div>
+                                <h1>Productos</h1>
+                            </div>
+                            <div class="wrapper">
+                                <i id="left" class="fa-solid fa-angle-left"></i>
+                                <ul class="carousel">
+                                    <div th:if="${productos != null and !productos.empty}" th:each="producto : ${productos}">
+                                        <li class="card">
+                                            <div class="img"><img th:src="@{${producto.rutaImagen}}" alt="Imagen del producto"/></div>
+                                            <div class="card-body">
+                                                <div class="details">
+                                                    <h2 class="card-text" th:text="${producto.nombre}"></h2>
+                                                    <span class="categories" th:text="'Categoría: ' + ${producto.categoria.nombre}"></span>
+                                                    <span class="price" th:text="'Precio: ' + '$' + ${#numbers.formatDecimal(producto.precio, 1, 'DEFAULT', 2, 'DEFAULT')}"></span>
+                                                </div>
+                                                <div>
+                                                    <form>
+                                                        <input type="hidden" name="texto" th:value="${producto.idProducto}"/>
+                                                        <input type="hidden" name="texto" th:value="${producto.existencias}"/> 
+                                                        <div sec:authorize="isAuthenticated()">
+                                                            <button class="btn" onclick="Toggle2(this); addCard(this.form)" type="button"><i class="far fa-heart"></i></button>
+                                                        </div>
+                                                      <div sec:authorize="!isAuthenticated()">
+                                                            <button class="btn" onclick="toggleAndAddCard(this);" type="button"><i class="far fa-heart"></i></button>
+                                                        </div>
+
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </div>
+                                </ul>
+                                <i id="right" class="fa-solid fa-angle-right"></i>
+                            </div>
+                            <div style="text-align: center;" th:if="${productos == null or productos.empty}">
+                                <span >No hay productos</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section th:fragment="listadoProductos" class="bg-light">
+         <div class="row py-2">
+             <div class="col-md-1"></div>
+             <div class="col-md-3">
+                  <form method="POST" th:action="@{/producto/listado}" 
+                       class="was-validated">
+                       </form>
+             </div>
+         </div>
+     </section>
+    </body>
+</html>
