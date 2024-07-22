@@ -1,6 +1,4 @@
-
 package com.PlushiePro.PlushiePro.domain;
-
 
 import jakarta.persistence.*;
 import java.io.Serializable;
@@ -21,19 +19,26 @@ public class Producto implements Serializable {
     private double precio;
     private int existencias;
     private String rutaImagen;
-    private boolean activo;
+    private int activo;  // Cambiado de boolean a int
 
     @ManyToOne
     @JoinColumn(name="id_categoria")
     Categoria categoria;
-
 
     public Producto() {
     }
 
     public Producto(String nombre, boolean activo) {
         this.nombre = nombre;
-        this.activo = activo;
+        this.activo = activo ? 1 : 0;
     }
-    
+
+    // Metodo de acceso personalizados para manejar la conversion
+    public boolean isActivo() {
+        return this.activo == 1;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo ? 1 : 0;
+    }
 }

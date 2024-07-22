@@ -1,13 +1,6 @@
 package com.PlushiePro.PlushiePro.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -40,17 +33,25 @@ public class Usuario implements Serializable{
     private String password;
     @Column(name = "tarjeta")
     private String tarjeta;
-     @Column(name = "pin")
+    @Column(name = "pin")
     private String pin;
     @Column(name = "fecha")
     private Date fecha;
-     @Column(name = "activo")
-    private boolean activo;
+    @Column(name = "activo")
+    private int activo;  // Cambiado de boolean a int
     @Column(name = "id_rol")
     private int rol;
     
     @OneToMany
     @JoinColumn(name = "id_usuario")
     List<Rol> roles;
-      
+
+    // Mtodo de acceso personalizados para manejar la conversion
+    public boolean isActivo() {
+        return this.activo == 1;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo ? 1 : 0;
+    }
 }
