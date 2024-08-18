@@ -96,13 +96,13 @@ INSERT INTO roles (nombre) VALUES ('ROLE_USER');
 
 -- Insertar usuarios
 INSERT INTO usuario (nombre, apellido, correo, direccion, username, password, tarjeta, pin, fecha, activo, id_rol) VALUES
-('Laura', 'María', 'Laura@example.com', 'Heredia Centro', 'user_123', '$2a$12$04CrX/liDFv9De2pwewjH.V54GWW.4aa/LrZJwetwXn5otlGFPv7.', '****-1111', '1234', TO_DATE('2030-04-15', 'YYYY-MM-DD'), 1, 2);
+('Laura', 'Mariloca', 'Laura@example.com', 'Heredia Centro', 'user_123', '$2a$12$04CrX/liDFv9De2pwewjH.V54GWW.4aa/LrZJwetwXn5otlGFPv7.', '****-1111', '1234', TO_DATE('2030-04-15', 'YYYY-MM-DD'), 1, 2);/*secretpassword*/
 INSERT INTO usuario (nombre, apellido, correo, direccion, username, password, tarjeta, pin, fecha, activo, id_rol) VALUES
-('Alondra', 'Loría', 'alon123@example.com', 'Llanos del Sol', 'user_456', '$2a$12$Iaz69g9rD9tzKO0kaB.V/.UkwIRHMPr9nPU1kCM7jc.9.wkRrx7Yi', '****-2222', '5678', TO_DATE('2028-04-15', 'YYYY-MM-DD'), 1, 2);
+('Alondra', 'Loriaa', 'alon123@example.com', 'Llanos del Sol', 'user_456', '$2a$12$Iaz69g9rD9tzKO0kaB.V/.UkwIRHMPr9nPU1kCM7jc.9.wkRrx7Yi', '****-2222', '5678', TO_DATE('2028-04-15', 'YYYY-MM-DD'), 1, 2);/*mypassword*/
 INSERT INTO usuario (nombre, apellido, correo, direccion, username, password, tarjeta, pin, fecha, activo, id_rol) VALUES
-('Carlos', 'Jimenez', 'jimenez@example.com', 'Calle Sánchez', 'user_789', '$2a$12$stCHKC9z1UJs3rDa2kisfucZnHTXruTuNJwsOILv5bzLOMdc9cRkG', '****-3333', '9101', TO_DATE('2029-04-15', 'YYYY-MM-DD'), 1, 2);
+('Carlos', 'Jimenez', 'jimenez@example.com', 'Calle Sánchez', 'user_789', '$2a$12$stCHKC9z1UJs3rDa2kisfucZnHTXruTuNJwsOILv5bzLOMdc9cRkG', '****-3333', '9101', TO_DATE('2029-04-15', 'YYYY-MM-DD'), 1, 2);/*123456*/
 INSERT INTO usuario (nombre, apellido, correo, direccion, username, password, tarjeta, pin, fecha, activo, id_rol) VALUES
-('Admin', 'Admin', 'admin@example.com', 'La Aurora', 'admin', '$2a$12$mwkEba3Ge19v4g1dIN3pmuT2oDVyd51NWDHpquHq4wdVeesbcVBBC', '****-4444', '1314', TO_DATE('2032-04-15', 'YYYY-MM-DD'), 1, 1);
+('Admin', 'Admin', 'admin@example.com', 'La Aurora', 'admin', '$2a$12$mwkEba3Ge19v4g1dIN3pmuT2oDVyd51NWDHpquHq4wdVeesbcVBBC', '****-4444', '1314', TO_DATE('2032-04-15', 'YYYY-MM-DD'), 1, 1);/*adminpassword*/
 
 
 -- Insertar categorías
@@ -229,10 +229,26 @@ INSERT INTO venta (id_factura, id_producto, precio, cantidad) VALUES (3, 15, 330
 INSERT INTO venta (id_factura, id_producto, precio, cantidad) VALUES (3, 12, 45000, 1);
 INSERT INTO venta (id_factura, id_producto, precio, cantidad) VALUES (3, 10, 15000, 3);
 
+//Tabla de auditorias de errores 
+CREATE TABLE ERRORES_AUDIT(USUARIO VARCHAR2(50),
+                           ORIGEN VARCHAR2(50),
+                           FECHA DATE,
+                           VERROR VARCHAR2(600)
+
+); 
+ 
  -- Funcion de traer ventas 
 CREATE OR REPLACE FUNCTION GET_VENTAS RETURN SYS_REFCURSOR IS
     resultado SYS_REFCURSOR;
+    VCOD NUMBER;
+    VMES VARCHAR2(500);
 BEGIN
     OPEN resultado FOR SELECT * FROM VENTA;
     RETURN resultado;
+    
+EXCEPTION    
+     WHEN OTHERS THEN  
+     VMES := SQLERRM;
+     VCOD := SQLCODE;
+     INSERT INTO ERRORES_AUDIT VALUES (USER,'GET_VENTAS',SYSDATE, VCOD || ' - '|| VMES );
 END GET_VENTAS;
