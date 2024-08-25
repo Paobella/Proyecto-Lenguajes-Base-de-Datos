@@ -42,9 +42,10 @@ public String listado(Model model) {
 
     @PostMapping("/guardar")
     public String usuarioGuardar(Usuario usuario) {
-        usuarioService.save(usuario);    
+        usuarioService.actuzalizar_user(usuario);    
         return "redirect:/usuario/listado";
     }
+   
 
     @GetMapping("/eliminar/{idUsuario}")
     public String usuarioEliminar(Usuario usuario) {

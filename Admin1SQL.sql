@@ -443,3 +443,108 @@ EXCEPTION
      VCOD := SQLCODE;
      INSERT INTO ERRORES_AUDIT VALUES (USER,'GET_USUARIO_POR_USERNAME_Y_PASSWORD',SYSDATE, VCOD || ' - '|| VMES );      
 END GET_USUARIO_POR_USERNAME_Y_PASSWORD;
+
+
+///Crear user
+CREATE OR REPLACE PROCEDURE CREAR_USER(nomb VARCHAR2,apell VARCHAR2,corre VARCHAR2,direc VARCHAR2,usern VARCHAR2,
+    pass VARCHAR2,tarj VARCHAR2,pinn VARCHAR2,fech DATE,activ NUMBER,rol_id NUMBER) AS
+    
+    VMES VARCHAR2(4000);
+    VCOD NUMBER;
+BEGIN
+    INSERT INTO Usuario (
+        nombre, apellido, correo, direccion, username, password,tarjeta, pin, fecha, activo, id_rol
+    ) VALUES (
+        nomb,apell,corre,direc,usern,pass,tarj,pinn,SYSDATE,activ,rol_id
+    );
+EXCEPTION
+     WHEN OTHERS THEN  
+     VMES := SQLERRM;
+     VCOD := SQLCODE;
+     INSERT INTO ERRORES_AUDIT VALUES (USER,'CREAR_USER',SYSDATE, VCOD || ' - '|| VMES );           
+END CREAR_USER;
+
+
+///Actualizar User
+CREATE OR REPLACE PROCEDURE ACTUALIZAR_USER(usu_id IN NUMBER,nomb VARCHAR2,apell VARCHAR2,corre VARCHAR2,direc VARCHAR2,usern VARCHAR2,
+    pass VARCHAR2,tarj VARCHAR2,pinn VARCHAR2,fech DATE,activ NUMBER,rol_id NUMBER) AS
+
+    VMES VARCHAR2(4000);
+    VCOD NUMBER;
+BEGIN
+    UPDATE Usuario
+    SET nombre = nomb,
+        apellido = apell,
+        correo = corre,
+        direccion = direc,
+        username = usern,
+        password = pass,
+        tarjeta = tarj,
+        pin = pinn,
+        fecha = SYSDATE,
+        activo = activ,
+        id_rol = rol_id
+    WHERE id_usuario = usu_id;
+    
+EXCEPTION
+     WHEN OTHERS THEN  
+     VMES := SQLERRM;
+     VCOD := SQLCODE;
+     INSERT INTO ERRORES_AUDIT VALUES (USER,'ACTUALIZAR_USER',SYSDATE, VCOD || ' - '|| VMES );  
+END ACTUALIZAR_USER;
+
+
+///Get por user o correo
+CREATE OR REPLACE PROCEDURE GET_USUARIO_POR_USERNAME_O_CORREO(usern IN VARCHAR2,corre_us IN VARCHAR2,usu OUT NUMBER,
+    nomb OUT VARCHAR2,ape OUT VARCHAR2,corre OUT VARCHAR2,direc OUT VARCHAR2,tarj OUT VARCHAR2,pinn OUT VARCHAR2,
+    fech OUT DATE,acti OUT NUMBER,id_rol OUT NUMBER) AS
+    
+    VMES VARCHAR2(4000);
+    VCOD NUMBER;
+BEGIN
+    SELECT id_usuario, nombre, apellido, correo, direccion, tarjeta, pin, fecha, activo, id_rol
+    INTO usu,nomb,ape,corre,direc,tarj,pinn,fech,acti,id_rol
+    FROM Usuario
+    WHERE username = usern
+    OR correo = corre_us;
+    
+EXCEPTION
+     WHEN OTHERS THEN  
+     VMES := SQLERRM;
+     VCOD := SQLCODE;
+     INSERT INTO ERRORES_AUDIT VALUES (USER,'GET_USUARIO_POR_USERNAME_O_CORREO',SYSDATE, VCOD || ' - '|| VMES );      
+END GET_USUARIO_POR_USERNAME_O_CORREO;
+
+
+
+///Existe user por username o correo
+CREATE OR REPLACE PROCEDURE EXISTE_USUARIO_POR_USERNAME_O_CORREO(
+    usern IN VARCHAR2, 
+    corre IN VARCHAR2, 
+    existe OUT NUMBER
+) AS
+    VMES VARCHAR2(4000);
+    VCOD NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO existe
+    FROM Usuario
+    WHERE username = usern OR correo = corre;
+
+    IF existe > 0 THEN
+        existe := 1;
+    ELSE
+        existe := 0;
+    END IF;
+    
+EXCEPTION
+     WHEN OTHERS THEN  
+     VMES := SQLERRM;
+     VCOD := SQLCODE;
+     INSERT INTO ERRORES_AUDIT VALUES (USER, 'EXISTE_USUARIO_POR_USERNAME_O_CORREO', SYSDATE, VCOD || ' - ' || VMES );  
+END EXISTE_USUARIO_POR_USERNAME_O_CORREO;
+
+
+    SELECT COUNT(*)
+    FROM Usuario
+    WHERE username = 'milo' OR correo = 'emenen21@gmail.com';

@@ -31,7 +31,7 @@ public class RegistroServiceImpl implements RegistroService {
     @Override
     public Model activar(Model model, String username, String clave) {
         Usuario usuario = 
-                /////
+                //////
                 usuarioService.getUsuarioPorUsernameYPassword(username, 
                         clave);
                 /////
@@ -59,7 +59,7 @@ public class RegistroServiceImpl implements RegistroService {
         usuario.setPassword(codigo.encode(usuario.getPassword()));
         
         ////actualizar
-        usuarioService.save(usuario);
+        usuarioService.actuzalizar_user(usuario);
         ////
         
     }
@@ -81,7 +81,7 @@ public class RegistroServiceImpl implements RegistroService {
 
             
             ///crear si
-            usuarioService.save(usuario);
+            usuarioService.crear_user(usuario);
             ////
             
             enviaCorreoActivar(usuario, clave);
@@ -125,7 +125,7 @@ public class RegistroServiceImpl implements RegistroService {
             usuario2.setPassword(clave);
             usuario2.setActivo(false);
             ////no es save es actualizar
-            usuarioService.save(usuario2);
+            usuarioService.actuzalizar_user(usuario2);
             ////
             enviaCorreoRecordar(usuario2, clave);
             mensaje = String.format(
