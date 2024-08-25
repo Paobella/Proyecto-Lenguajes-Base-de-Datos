@@ -25,14 +25,17 @@ public class RegistroServiceImpl implements RegistroService {
     @Autowired
     private UsuarioService usuarioService;
     @Autowired
-    private MessageSource messageSource;  //creado en semana 4...
+    private MessageSource messageSource;  
    
 
     @Override
     public Model activar(Model model, String username, String clave) {
         Usuario usuario = 
+                /////
                 usuarioService.getUsuarioPorUsernameYPassword(username, 
                         clave);
+                /////
+        
         if (usuario != null) {
             model.addAttribute("usuario", usuario);
         } else {
@@ -54,7 +57,11 @@ public class RegistroServiceImpl implements RegistroService {
     public void activar(Usuario usuario) {
         var codigo = new BCryptPasswordEncoder();
         usuario.setPassword(codigo.encode(usuario.getPassword()));
+        
+        ////actualizar
         usuarioService.save(usuario);
+        ////
+        
     }
     
     
@@ -63,14 +70,20 @@ public class RegistroServiceImpl implements RegistroService {
     public Model crearUsuario(Model model, Usuario usuario) 
             throws MessagingException {
         String mensaje;
+        
         if (!usuarioService.
                 existeUsuarioPorUsernameOCorreo(
                         usuario.getUsername(), 
-                        usuario.getCorreo())) {
+                        usuario.getCorreo()))
+        {
             String clave = demeClave();
             usuario.setPassword(clave);
-            usuario.setActivo(false);
+
+            
+            ///crear si
             usuarioService.save(usuario);
+            ////
+            
             enviaCorreoActivar(usuario, clave);
             mensaje = String.format(
                     messageSource.getMessage(
@@ -102,14 +115,18 @@ public class RegistroServiceImpl implements RegistroService {
     public Model recordarUsuario(Model model, Usuario usuario) 
             throws MessagingException {
         String mensaje;
+        ////
         Usuario usuario2 = usuarioService.getUsuarioPorUsernameOCorreo(
                 usuario.getUsername(), 
                 usuario.getCorreo());
+        ////
         if (usuario2 != null) {
             String clave = demeClave();
             usuario2.setPassword(clave);
             usuario2.setActivo(false);
+            ////no es save es actualizar
             usuarioService.save(usuario2);
+            ////
             enviaCorreoRecordar(usuario2, clave);
             mensaje = String.format(
                     messageSource.getMessage(

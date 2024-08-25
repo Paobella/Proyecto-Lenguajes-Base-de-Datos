@@ -20,6 +20,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import com.PlushiePro.PlushiePro.dao.ProductoDao;
+import java.util.Map;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -98,8 +103,9 @@ public class ItemServiceImpl implements ItemService {
     private VentaDao ventaDao;
     @Autowired
     private ProductoDao productoDao;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
-    
     @Override
     public void facturar() {
         System.out.println("Facturando");
@@ -118,22 +124,49 @@ public class ItemServiceImpl implements ItemService {
         if (uuario == null) {
             return;
         }
-        Factura factura = new Factura(uuario.getIdUsuario());
-        factura = facturaDao.save(factura);
+
+
+        // Configurar SimpleJdbcCall 
+        SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate)
+                .withFunctionName("CREAR_FACTURA");
+        // Ejecutar la funcion y guardarlo en un objeto para luego obtener el return
+              Map<String, Object> retorno = simpleJdbcCall.execute(Map.of("usu_id", uuario.getIdUsuario()));
+
+        // Se guarda el return en un tipo number
+        Number idFacturaNumber = (Number) retorno.get("return"); 
+
+        // Convertir el valor a Long
+        Long id_factura = idFacturaNumber.longValue();
+
         double total = 0;
         for (Item i : listaItems) {
             System.out.println("Producto: " + i.getDescripcion() + " Cantidad: " + i.getCantidad() + " Total: " + i.getPrecio() * i.getCantidad());
-            Venta venta = new Venta(factura.getIdFactura(),
-                    i.getIdProducto(), i.getPrecio(), i.getCantidad());
-            ventaDao.save(venta);
-            Producto producto = productoDao.getReferenceById(i.getIdProducto());
-            producto.setExistencias(producto.getExistencias()
-                    - i.getCantidad());
-            productoDao.save(producto);
+
+            SimpleJdbcCall simpleJdbcCall2 = new SimpleJdbcCall(jdbcTemplate)
+                    .withProcedureName("INSERTAR_VENTA");
+
+            // Preparar los parámetros de entrada
+            SqlParameterSource consulta = new MapSqlParameterSource()
+                    .addValue("fac_id", id_factura)
+                    .addValue("prod_id", i.getIdProducto())
+                    .addValue("prec", i.getPrecio())
+                    .addValue("cant", i.getCantidad());
+
+            // Ejecutar el procedimiento almacenado
+            simpleJdbcCall2.execute(consulta);
+
             total += i.getPrecio() * i.getCantidad();
         }
-        factura.setTotal(total);
-        facturaDao.save(factura);
+        
+        SimpleJdbcCall simpleJdbcCall3 = new SimpleJdbcCall(jdbcTemplate)
+                    .withProcedureName("ACTUALIZAR_FACTURA");
+            // Preparar los parámetros de entrada
+            SqlParameterSource consulta = new MapSqlParameterSource()
+                    .addValue("fac_id", id_factura)
+                    .addValue("tot", total);
+            // Ejecutar el procedimiento almacenado
+            simpleJdbcCall3.execute(consulta);
+
         listaItems.clear();
     }
 

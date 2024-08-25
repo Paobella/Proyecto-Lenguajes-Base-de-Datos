@@ -278,7 +278,7 @@ BEGIN
             VCOD := SQLCODE;
             INSERT INTO ERRORES_AUDIT (USUARIO, ORIGEN, FECHA, VERROR)
             VALUES (USER, 'GET_CATEGORIAS', SYSDATE, VCOD || ' - ' || VMES);
-            RAISE;--permite que el error que se ha registrado en la tabla ERRORES_AUDIT también se propague
+            RAISE;--permite que el error que se ha registrado en la tabla ERRORES_AUDIT tambiï¿½n se propague
     END;
 END GET_CATEGORIAS;
 /
@@ -310,10 +310,10 @@ BEGIN
             VCOD := SQLCODE;
             INSERT INTO ERRORES_AUDIT (USUARIO, ORIGEN, FECHA, VERROR)
             VALUES (USER, 'GET_CATEGORIA', SYSDATE, VCOD || ' - ' || VMES);
-            RAISE;--permite que el error que se ha registrado en la tabla ERRORES_AUDIT también se propague
+            RAISE;--permite que el error que se ha registrado en la tabla ERRORES_AUDIT tambiï¿½n se propague
     END;
 END GET_CATEGORIA;
-/
+
 
  -- Funcion de usuario details service impl
  
@@ -354,6 +354,92 @@ BEGIN
     END;
 END Usuario_Service_impl;
 
+--FUNCION PARA CREAR FACTURA
+CREATE OR REPLACE FUNCTION CREAR_FACTURA(usu_id NUMBER)  RETURN 
+NUMBER IS
+    v_id_factura NUMBER;
+    VMES VARCHAR2(4000);
+    VCOD NUMBER;
+BEGIN
+        -- Inserta la factura y captura el ID generado
+    INSERT INTO factura (id_usuario, fecha)
+    VALUES (usu_id, SYSDATE)
+    RETURNING id_factura INTO v_id_factura;
+
+    -- Retorna el ID generado
+    RETURN v_id_factura;
+EXCEPTION    
+     WHEN OTHERS THEN  
+     VMES := SQLERRM;
+     VCOD := SQLCODE;
+     INSERT INTO ERRORES_AUDIT VALUES (USER,'CREAR_FACTURA',SYSDATE, VCOD || ' - '|| VMES );
+END CREAR_FACTURA;
+
+SELECT CREAR_FACTURA(1) FROM DUAL;
+
+--ACTUALIZAR FACTURA
+CREATE OR REPLACE PROCEDURE ACTUALIZAR_FACTURA(fac_id NUMBER,tot NUMBER)
+AS
+    VMES VARCHAR2(4000);
+    VCOD NUMBER;
+BEGIN
+    UPDATE Factura
+    SET total = tot, estado = 1
+    WHERE id_factura = fac_id;
+    
+EXCEPTION    
+     WHEN OTHERS THEN  
+     VMES := SQLERRM;
+     VCOD := SQLCODE;
+     INSERT INTO ERRORES_AUDIT VALUES (USER,'ACTUALIZAR_FACTURA',SYSDATE, VCOD || ' - '|| VMES );
+END ACTUALIZAR_FACTURA;
 
 
+--SP PARA CREAR VENTA
+CREATE OR REPLACE PROCEDURE INSERTAR_VENTA(fac_id NUMBER,prod_id NUMBER,prec NUMBER,cant NUMBER)
+AS
+    VMES VARCHAR2(4000);
+    VCOD NUMBER;
+BEGIN
+    INSERT INTO Venta (id_factura, id_producto, precio, cantidad)
+    VALUES (fac_id, prod_id,prec, cant);
+    
+    UPDATE Producto
+    SET existencias = existencias-cant
+    WHERE id_producto = prod_id;
+    
+EXCEPTION    
+     WHEN OTHERS THEN  
+     VMES := SQLERRM;
+     VCOD := SQLCODE;
+     INSERT INTO ERRORES_AUDIT VALUES (USER,'INSERTAR_VENTA',SYSDATE, VCOD || ' - '|| VMES );
+END INSERTAR_VENTA;
 
+
+CREATE OR REPLACE PROCEDURE CREAR_USUARIO (nomb VARCHAR2,apelli VARCHAR2,mail VARCHAR2,direc VARCHAR2,userna VARCHAR2,pass VARCHAR2,tarj VARCHAR2,pin_us VARCHAR2) AS
+BEGIN
+        INSERT INTO Usuario (nombre, apellido, correo, direccion, username, password, tarjeta, pin, fecha, activo, id_rol)
+        VALUES (nomb, apelli, mail, direc, userna, pass, tarj, pin_us, SYSDATE, 0, 2);
+
+END CREAR_USUARIO;
+
+///GET USUARIO POR US Y PASS
+CREATE OR REPLACE PROCEDURE GET_USUARIO_POR_USERNAME_Y_PASSWORD(usern IN VARCHAR2,pass IN VARCHAR2,usu OUT NUMBER,
+    nomb OUT VARCHAR2,ape OUT VARCHAR2,corre OUT VARCHAR2,direc OUT VARCHAR2,tarj OUT VARCHAR2,pinn OUT VARCHAR2,
+    fech OUT DATE,acti OUT NUMBER,id_rol OUT NUMBER) AS
+    
+    VMES VARCHAR2(4000);
+    VCOD NUMBER;
+BEGIN
+    SELECT id_usuario, nombre, apellido, correo, direccion, tarjeta, pin, fecha, activo, id_rol
+    INTO usu,nomb,ape,corre,direc,tarj,pinn,fech,acti,id_rol
+    FROM Usuario
+    WHERE username = usern
+    AND password = pass;
+    
+EXCEPTION
+     WHEN OTHERS THEN  
+     VMES := SQLERRM;
+     VCOD := SQLCODE;
+     INSERT INTO ERRORES_AUDIT VALUES (USER,'GET_USUARIO_POR_USERNAME_Y_PASSWORD',SYSDATE, VCOD || ' - '|| VMES );      
+END GET_USUARIO_POR_USERNAME_Y_PASSWORD;
