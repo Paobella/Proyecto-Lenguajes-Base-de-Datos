@@ -548,3 +548,121 @@ END EXISTE_USUARIO_POR_USERNAME_O_CORREO;
     SELECT COUNT(*)
     FROM Usuario
     WHERE username = 'milo' OR correo = 'emenen21@gmail.com';
+    
+// Funcion de traer productos
+CREATE OR REPLACE PROCEDURE GET_PRODUCTOS(p_activo IN NUMBER, p_resultado OUT SYS_REFCURSOR)
+AS
+    VMES VARCHAR2(4000);
+    VCOD NUMBER;
+BEGIN
+    IF p_activo = 1 THEN
+        OPEN p_resultado FOR
+        SELECT * FROM producto WHERE activo = 1;
+    ELSE
+        OPEN p_resultado FOR
+        SELECT * FROM producto;
+    END IF;
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        VMES := SQLERRM;
+        VCOD := SQLCODE;
+        INSERT INTO ERRORES_AUDIT (USUARIO, ORIGEN, FECHA, VERROR)
+        VALUES (USER, 'GET_PRODUCTOS', SYSDATE, VCOD || ' - ' || VMES);
+END GET_PRODUCTOS;
+
+// Funcion para traer un producto en específico
+CREATE OR REPLACE PROCEDURE GET_PRODUCTO_BY_ID(p_id_producto IN NUMBER, p_resultado OUT SYS_REFCURSOR)
+AS
+    VMES VARCHAR2(4000);
+    VCOD NUMBER;
+BEGIN
+    OPEN p_resultado FOR
+    SELECT * FROM producto WHERE id_producto = p_id_producto;
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        VMES := SQLERRM;
+        VCOD := SQLCODE;
+        INSERT INTO ERRORES_AUDIT (USUARIO, ORIGEN, FECHA, VERROR)
+        VALUES (USER, 'GET_PRODUCTO_BY_ID', SYSDATE, VCOD || ' - ' || VMES);
+END GET_PRODUCTO_BY_ID;
+
+-- Insertar o guardar productos
+CREATE OR REPLACE PROCEDURE INSERT_PRODUCTO(
+    p_id_producto IN NUMBER,
+    p_id_categoria IN NUMBER,
+    p_nombre IN VARCHAR2,
+    p_descripcion IN VARCHAR2,
+    p_precio IN NUMBER,
+    p_existencias IN NUMBER,
+    p_ruta_imagen IN VARCHAR2,
+    p_activo IN NUMBER
+)
+AS
+    VMES VARCHAR2(4000);
+    VCOD NUMBER;
+BEGIN
+    IF p_id_producto IS NULL THEN
+        -- Inserta un nuevo producto
+        INSERT INTO producto (id_categoria, nombre, descripcion, precio, existencias, ruta_imagen, activo)
+        VALUES (p_id_categoria, p_nombre, p_descripcion, p_precio, p_existencias, p_ruta_imagen, p_activo);
+    ELSE
+        -- Actualiza un producto existente
+        UPDATE producto
+        SET id_categoria = p_id_categoria,
+            nombre = p_nombre,
+            descripcion = p_descripcion,
+            precio = p_precio,
+            existencias = p_existencias,
+            ruta_imagen = p_ruta_imagen,
+            activo = p_activo
+        WHERE id_producto = p_id_producto;
+    END IF;
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        VMES := SQLERRM;
+        VCOD := SQLCODE;
+        INSERT INTO ERRORES_AUDIT (USUARIO, ORIGEN, FECHA, VERROR)
+        VALUES (USER, 'INSERT_PRODUCTO', SYSDATE, VCOD || ' - ' || VMES);
+END INSERT_PRODUCTO;
+
+-- Eliminar productos
+CREATE OR REPLACE PROCEDURE DELETE_PRODUCTO(p_id_producto IN NUMBER)
+AS
+    VMES VARCHAR2(4000);
+    VCOD NUMBER;
+BEGIN
+    DELETE FROM producto WHERE id_producto = p_id_producto;
+    
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Producto no encontrado');
+    END IF;
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        VMES := SQLERRM;
+        VCOD := SQLCODE;
+        INSERT INTO ERRORES_AUDIT (USUARIO, ORIGEN, FECHA, VERROR)
+        VALUES (USER, 'DELETE_PRODUCTO', SYSDATE, VCOD || ' - ' || VMES);
+END DELETE_PRODUCTO;
+
+-- Buscar productos por nombre y ordenarlos
+CREATE OR REPLACE PROCEDURE FIND_PRODUCTO_BY_NOMBRE(p_nombre IN VARCHAR2, p_resultado OUT SYS_REFCURSOR)
+AS
+    VMES VARCHAR2(4000);
+    VCOD NUMBER;
+BEGIN
+    OPEN p_resultado FOR
+    SELECT * FROM producto
+    WHERE UPPER(nombre) = UPPER(p_nombre)
+    ORDER BY nombre;
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        VMES := SQLERRM;
+        VCOD := SQLCODE;
+        INSERT INTO ERRORES_AUDIT (USUARIO, ORIGEN, FECHA, VERROR)
+        VALUES (USER, 'FIND_PRODUCTO_BY_NOMBRE', SYSDATE, VCOD || ' - ' || VMES);
+END FIND_PRODUCTO_BY_NOMBRE;
