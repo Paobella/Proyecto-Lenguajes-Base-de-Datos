@@ -8,10 +8,6 @@ import com.PlushiePro.PlushiePro.domain.Categoria;
 import java.util.List;
 
 public interface CategoriaService {
-    
-    public List<Categoria> getCategorias(boolean activos);
-    
-    public Categoria getCategoria(Categoria categoria);
-
- 
+    List<Categoria> getCategorias(boolean activos);
+    Categoria getCategoria(Categoria categoria);
 }

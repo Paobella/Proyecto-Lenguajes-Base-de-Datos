@@ -255,106 +255,42 @@ END GET_VENTAS;
 
 -- Funcion de traer  Categorias impl
 
-CREATE OR REPLACE PROCEDURE GET_CATEGORIAS (
-    p_activos IN BOOLEAN,
-    p_resultado OUT SYS_REFCURSOR
-) IS
-    VCOD NUMBER;
-    VMES VARCHAR2(500);
-BEGIN
-    BEGIN
-       
-        IF p_activos THEN
-            OPEN p_resultado FOR
-            SELECT * FROM categoria
-            WHERE ACTIVO = 1;
-        ELSE
-            OPEN p_resultado FOR
-            SELECT * FROM categoria;
-        END IF;
-    EXCEPTION
-        WHEN OTHERS THEN
-            VMES := SQLERRM;
-            VCOD := SQLCODE;
-            INSERT INTO ERRORES_AUDIT (USUARIO, ORIGEN, FECHA, VERROR)
-            VALUES (USER, 'GET_CATEGORIAS', SYSDATE, VCOD || ' - ' || VMES);
-            RAISE;--permite que el error que se ha registrado en la tabla ERRORES_AUDIT tambiï¿½n se propague
-    END;
-END GET_CATEGORIAS;
-/
--- CATEGORIA
-
-CREATE OR REPLACE PROCEDURE GET_CATEGORIA (
+CREATE OR REPLACE PROCEDURE GET_CATEGORIA_BY_ID (
     p_id_categoria IN NUMBER,
     p_resultado OUT SYS_REFCURSOR
 ) IS
+    resultado SYS_REFCURSOR;
     VCOD NUMBER;
     VMES VARCHAR2(500);
 BEGIN
-    BEGIN
-
-        OPEN p_resultado FOR
-        SELECT * FROM categoria
-        WHERE ID_CATEGORIA = p_id_categoria;
+    -- Abrir el cursor con la consulta
+    OPEN resultado FOR
+    SELECT id_categoria, nombre, tipo, activo
+    FROM categoria
+    WHERE id_categoria = p_id_categoria;
+    
+    -- Asignar el cursor de resultado a p_resultado
+    p_resultado := resultado;
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        VCOD := SQLCODE;
+        VMES := SQLERRM;
         
-        IF p_resultado%ROWCOUNT = 0 THEN
-            
-            CLOSE p_resultado;
-            OPEN p_resultado FOR
-            SELECT NULL AS ID_CATEGORIA, NULL AS NOMBRE, NULL AS ACTIVO FROM DUAL WHERE 1=0;
-        END IF;
-       
-    EXCEPTION
-        WHEN OTHERS THEN
-            VMES := SQLERRM;
-            VCOD := SQLCODE;
-            INSERT INTO ERRORES_AUDIT (USUARIO, ORIGEN, FECHA, VERROR)
-            VALUES (USER, 'GET_CATEGORIA', SYSDATE, VCOD || ' - ' || VMES);
-            RAISE;--permite que el error que se ha registrado en la tabla ERRORES_AUDIT tambiï¿½n se propague
-    END;
-END GET_CATEGORIA;
-
-
+        -- Insertar en la tabla de errores
+        INSERT INTO ERRORES_AUDIT (USUARIO, ORIGEN, FECHA, VERROR)
+        VALUES (USER, 'GET_CATEGORIA_BY_ID', SYSDATE, VCOD || ' - ' || VMES);
+        
+        -- Propagar la excepción
+        RAISE;
+END GET_CATEGORIA_BY_ID;
+/
  -- Funcion de usuario details service impl
  
-CREATE OR REPLACE PROCEDURE Usuario_Service_impl (
-    p_username IN VARCHAR2,
-    p_password OUT VARCHAR2,
-    p_role OUT VARCHAR2
-) IS
-    v_rol NUMBER;
-    v_cod NUMBER;
-    v_mes VARCHAR2(500);
-BEGIN
-    BEGIN
-     
-        SELECT PASSWORD, id_rol INTO p_password, v_rol
-        FROM usuario
-        WHERE USERNAME = p_username;
 
-     
-        IF v_rol = 1 THEN
-            p_role := 'ROLE_ADMIN';
-        ELSE
-            p_role := 'ROLE_USER';
-        END IF;
-
-    EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-            v_mes := 'Usuario no encontrado: ' || p_username;
-            v_cod := -20001;
-            INSERT INTO ERRORES_AUDIT VALUES (USER, 'Usuario_Service_impl', SYSDATE, v_cod || ' - ' || v_mes);
-
-
-        WHEN OTHERS THEN
-            v_mes := SQLERRM;
-            v_cod := SQLCODE;
-            INSERT INTO ERRORES_AUDIT VALUES (USER, 'Usuario_Service_impl', SYSDATE, v_cod || ' - ' || v_mes);
-
-    END;
-END Usuario_Service_impl;
 
 --FUNCION PARA CREAR FACTURA
+
 CREATE OR REPLACE FUNCTION CREAR_FACTURA(usu_id NUMBER)  RETURN 
 NUMBER IS
     v_id_factura NUMBER;
@@ -414,6 +350,7 @@ EXCEPTION
      VCOD := SQLCODE;
      INSERT INTO ERRORES_AUDIT VALUES (USER,'INSERTAR_VENTA',SYSDATE, VCOD || ' - '|| VMES );
 END INSERTAR_VENTA;
+
 
 ///EXISTE USER
 CREATE OR REPLACE FUNCTION EXISTE_USU(user_name VARCHAR2,correo_user VARCHAR2)  RETURN 
