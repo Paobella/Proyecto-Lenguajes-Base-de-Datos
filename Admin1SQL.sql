@@ -415,139 +415,183 @@ EXCEPTION
      INSERT INTO ERRORES_AUDIT VALUES (USER,'INSERTAR_VENTA',SYSDATE, VCOD || ' - '|| VMES );
 END INSERTAR_VENTA;
 
+///EXISTE USER
+CREATE OR REPLACE FUNCTION EXISTE_USU(user_name VARCHAR2,correo_user VARCHAR2)  RETURN 
+NUMBER IS
+    cantidad NUMBER;
+    VMES VARCHAR2(4000);
+    VCOD NUMBER;
+BEGIN
+        
+   SELECT COUNT(*)
+   INTO cantidad
+   FROM Usuario
+   WHERE username = user_name OR correo = correo_user;
 
+    RETURN cantidad;
+EXCEPTION    
+     WHEN OTHERS THEN  
+     VMES := SQLERRM;
+     VCOD := SQLCODE;
+     INSERT INTO ERRORES_AUDIT VALUES (USER,'EXISTE_USU',SYSDATE, VCOD || ' - '|| VMES );
+END EXISTE_USU;
+
+
+///CREAR USER
 CREATE OR REPLACE PROCEDURE CREAR_USUARIO (nomb VARCHAR2,apelli VARCHAR2,mail VARCHAR2,direc VARCHAR2,userna VARCHAR2,pass VARCHAR2,tarj VARCHAR2,pin_us VARCHAR2) AS
+
+    VMES VARCHAR2(4000);
+    VCOD NUMBER;
 BEGIN
         INSERT INTO Usuario (nombre, apellido, correo, direccion, username, password, tarjeta, pin, fecha, activo, id_rol)
         VALUES (nomb, apelli, mail, direc, userna, pass, tarj, pin_us, SYSDATE, 0, 2);
-
+EXCEPTION    
+     WHEN OTHERS THEN  
+     VMES := SQLERRM;
+     VCOD := SQLCODE;
+     INSERT INTO ERRORES_AUDIT VALUES (USER,'CREAR_USUARIO',SYSDATE, VCOD || ' - '|| VMES );
 END CREAR_USUARIO;
 
-///GET USUARIO POR US Y PASS
-CREATE OR REPLACE PROCEDURE GET_USUARIO_POR_USERNAME_Y_PASSWORD(usern IN VARCHAR2,pass IN VARCHAR2,usu OUT NUMBER,
-    nomb OUT VARCHAR2,ape OUT VARCHAR2,corre OUT VARCHAR2,direc OUT VARCHAR2,tarj OUT VARCHAR2,pinn OUT VARCHAR2,
-    fech OUT DATE,acti OUT NUMBER,id_rol OUT NUMBER) AS
-    
-    VMES VARCHAR2(4000);
-    VCOD NUMBER;
-BEGIN
-    SELECT id_usuario, nombre, apellido, correo, direccion, tarjeta, pin, fecha, activo, id_rol
-    INTO usu,nomb,ape,corre,direc,tarj,pinn,fech,acti,id_rol
-    FROM Usuario
-    WHERE username = usern
-    AND password = pass;
-    
-EXCEPTION
-     WHEN OTHERS THEN  
-     VMES := SQLERRM;
-     VCOD := SQLCODE;
-     INSERT INTO ERRORES_AUDIT VALUES (USER,'GET_USUARIO_POR_USERNAME_Y_PASSWORD',SYSDATE, VCOD || ' - '|| VMES );      
-END GET_USUARIO_POR_USERNAME_Y_PASSWORD;
 
+//actualizar user
 
-///Crear user
-CREATE OR REPLACE PROCEDURE CREAR_USER(nomb VARCHAR2,apell VARCHAR2,corre VARCHAR2,direc VARCHAR2,usern VARCHAR2,
-    pass VARCHAR2,tarj VARCHAR2,pinn VARCHAR2,fech DATE,activ NUMBER,rol_id NUMBER) AS
-    
-    VMES VARCHAR2(4000);
-    VCOD NUMBER;
-BEGIN
-    INSERT INTO Usuario (
-        nombre, apellido, correo, direccion, username, password,tarjeta, pin, fecha, activo, id_rol
-    ) VALUES (
-        nomb,apell,corre,direc,usern,pass,tarj,pinn,SYSDATE,activ,rol_id
-    );
-EXCEPTION
-     WHEN OTHERS THEN  
-     VMES := SQLERRM;
-     VCOD := SQLCODE;
-     INSERT INTO ERRORES_AUDIT VALUES (USER,'CREAR_USER',SYSDATE, VCOD || ' - '|| VMES );           
-END CREAR_USER;
-
-
-///Actualizar User
-CREATE OR REPLACE PROCEDURE ACTUALIZAR_USER(usu_id IN NUMBER,nomb VARCHAR2,apell VARCHAR2,corre VARCHAR2,direc VARCHAR2,usern VARCHAR2,
-    pass VARCHAR2,tarj VARCHAR2,pinn VARCHAR2,fech DATE,activ NUMBER,rol_id NUMBER) AS
+CREATE OR REPLACE PROCEDURE ACTUALIZAR_USUARIO (usuario_id NUMBER,nomb VARCHAR2,apelli VARCHAR2,mail VARCHAR2,direc VARCHAR2,userna VARCHAR2,pass VARCHAR2,tarj VARCHAR2,pin_us VARCHAR2) AS
 
     VMES VARCHAR2(4000);
     VCOD NUMBER;
 BEGIN
     UPDATE Usuario
     SET nombre = nomb,
-        apellido = apell,
-        correo = corre,
-        direccion = direc,
-        username = usern,
-        password = pass,
-        tarjeta = tarj,
-        pin = pinn,
-        fecha = SYSDATE,
-        activo = activ,
-        id_rol = rol_id
-    WHERE id_usuario = usu_id;
-    
-EXCEPTION
+    apellido = apelli,
+    correo = mail,
+    direccion = direc,
+    username = userna,
+    password = pass,
+    tarjeta = tarj,
+    pin = pin_us,
+    fecha = SYSDATE,
+    activo = 1,
+    id_rol = 2
+WHERE id_usuario = usuario_id;
+
+EXCEPTION    
      WHEN OTHERS THEN  
      VMES := SQLERRM;
      VCOD := SQLCODE;
-     INSERT INTO ERRORES_AUDIT VALUES (USER,'ACTUALIZAR_USER',SYSDATE, VCOD || ' - '|| VMES );  
-END ACTUALIZAR_USER;
+     INSERT INTO ERRORES_AUDIT VALUES (USER,'ACTUALIZAR_USUARIO',SYSDATE, VCOD || ' - '|| VMES );
+END ACTUALIZAR_USUARIO;
 
+///getUsuarioPorUsernameYPassword
 
-///Get por user o correo
-CREATE OR REPLACE PROCEDURE GET_USUARIO_POR_USERNAME_O_CORREO(usern IN VARCHAR2,corre_us IN VARCHAR2,usu OUT NUMBER,
-    nomb OUT VARCHAR2,ape OUT VARCHAR2,corre OUT VARCHAR2,direc OUT VARCHAR2,tarj OUT VARCHAR2,pinn OUT VARCHAR2,
-    fech OUT DATE,acti OUT NUMBER,id_rol OUT NUMBER) AS
-    
+CREATE OR REPLACE PROCEDURE GET_USU_USER_PASSCS(user_name VARCHAR2,pass VARCHAR2,CSDATOS OUT SYS_REFCURSOR)
+AS
     VMES VARCHAR2(4000);
     VCOD NUMBER;
 BEGIN
-    SELECT id_usuario, nombre, apellido, correo, direccion, tarjeta, pin, fecha, activo, id_rol
-    INTO usu,nomb,ape,corre,direc,tarj,pinn,fech,acti,id_rol
-    FROM Usuario
-    WHERE username = usern
-    OR correo = corre_us;
-    
-EXCEPTION
+   OPEN CSDATOS FOR SELECT id_usuario,nombre, apellido, correo, direccion, username, password, tarjeta, pin, fecha, activo, id_rol 
+   FROM Usuario
+   WHERE username = user_name AND password = pass;
+
+EXCEPTION    
      WHEN OTHERS THEN  
      VMES := SQLERRM;
      VCOD := SQLCODE;
-     INSERT INTO ERRORES_AUDIT VALUES (USER,'GET_USUARIO_POR_USERNAME_O_CORREO',SYSDATE, VCOD || ' - '|| VMES );      
-END GET_USUARIO_POR_USERNAME_O_CORREO;
+     INSERT INTO ERRORES_AUDIT VALUES (USER,'GET_USU_USER_PASSCS',SYSDATE, VCOD || ' - '|| VMES );
+END GET_USU_USER_PASSCS;
+
+CREATE OR REPLACE FUNCTION GET_USU_USER_PASS(user_name VARCHAR2,pass VARCHAR2)RETURN SYS_REFCURSOR
+AS
+    VMES VARCHAR2(4000);
+    VCOD NUMBER;
+    CDATOS SYS_REFCURSOR;
+    
+BEGIN
+    GET_USU_USER_PASSCS(user_name,pass,CDATOS);
+    
+    RETURN CDATOS;
+EXCEPTION    
+     WHEN OTHERS THEN  
+     VMES := SQLERRM;
+     VCOD := SQLCODE;
+     INSERT INTO ERRORES_AUDIT VALUES (USER,'GET_USU_USER_PASS',SYSDATE, VCOD || ' - '|| VMES );
+END GET_USU_USER_PASS;
 
 
+///get usu por user o correo
 
-///Existe user por username o correo
-CREATE OR REPLACE PROCEDURE EXISTE_USUARIO_POR_USERNAME_O_CORREO(
-    usern IN VARCHAR2, 
-    corre IN VARCHAR2, 
-    existe OUT NUMBER
-) AS
+CREATE OR REPLACE PROCEDURE GET_USU_USER_CORRECS(user_name VARCHAR2,corre VARCHAR2,CSDATOS OUT SYS_REFCURSOR)
+AS
     VMES VARCHAR2(4000);
     VCOD NUMBER;
 BEGIN
-    SELECT COUNT(*)
-    INTO existe
-    FROM Usuario
-    WHERE username = usern OR correo = corre;
+   OPEN CSDATOS FOR SELECT id_usuario,nombre, apellido, correo, direccion, username, password, tarjeta, pin, fecha, activo, id_rol 
+   FROM Usuario
+   WHERE username = user_name OR correo = corre;
 
-    IF existe > 0 THEN
-        existe := 1;
-    ELSE
-        existe := 0;
-    END IF;
-    
-EXCEPTION
+EXCEPTION    
      WHEN OTHERS THEN  
      VMES := SQLERRM;
      VCOD := SQLCODE;
-     INSERT INTO ERRORES_AUDIT VALUES (USER, 'EXISTE_USUARIO_POR_USERNAME_O_CORREO', SYSDATE, VCOD || ' - ' || VMES );  
-END EXISTE_USUARIO_POR_USERNAME_O_CORREO;
+     INSERT INTO ERRORES_AUDIT VALUES (USER,'GET_USU_USER_CORRECS',SYSDATE, VCOD || ' - '|| VMES );
+END GET_USU_USER_CORRECS;
+
+CREATE OR REPLACE FUNCTION GET_USU_USER_CORRE(user_name VARCHAR2,corre VARCHAR2)RETURN SYS_REFCURSOR
+AS
+    VMES VARCHAR2(4000);
+    VCOD NUMBER;
+    CDATOS SYS_REFCURSOR;
+    
+BEGIN
+    GET_USU_USER_CORRECS(user_name,corre,CDATOS);
+    
+    RETURN CDATOS;
+EXCEPTION    
+     WHEN OTHERS THEN  
+     VMES := SQLERRM;
+     VCOD := SQLCODE;
+     INSERT INTO ERRORES_AUDIT VALUES (USER,'GET_USU_USER_CORRE',SYSDATE, VCOD || ' - '|| VMES );
+END GET_USU_USER_CORRE;
 
 
-    SELECT COUNT(*)
-    FROM Usuario
-    WHERE username = 'milo' OR correo = 'emenen21@gmail.com';
+//get user por username
+
+CREATE OR REPLACE PROCEDURE GET_USU_USERCS(user_name VARCHAR2,CSDATOS OUT SYS_REFCURSOR)
+AS
+    VMES VARCHAR2(4000);
+    VCOD NUMBER;
+    dinamico VARCHAR2(4000);
+BEGIN
+    
+    dinamico := 'SELECT id_usuario, nombre, apellido, correo, direccion, username, password, tarjeta, pin, fecha, activo, id_rol FROM Usuario WHERE username = :user_name';
+
+
+   OPEN CSDATOS FOR dinamico
+        USING user_name;
+
+EXCEPTION    
+     WHEN OTHERS THEN  
+     VMES := SQLERRM;
+     VCOD := SQLCODE;
+     INSERT INTO ERRORES_AUDIT VALUES (USER,'GET_USU_USERCS',SYSDATE, VCOD || ' - '|| VMES );
+END GET_USU_USERCS;
+
+CREATE OR REPLACE FUNCTION GET_USU_USER(user_name VARCHAR2)RETURN SYS_REFCURSOR
+AS
+    VMES VARCHAR2(4000);
+    VCOD NUMBER;
+    CDATOS SYS_REFCURSOR;
+    
+BEGIN
+    GET_USU_USERCS(user_name,CDATOS);
+    
+    RETURN CDATOS;
+EXCEPTION    
+     WHEN OTHERS THEN  
+     VMES := SQLERRM;
+     VCOD := SQLCODE;
+     INSERT INTO ERRORES_AUDIT VALUES (USER,'GET_USU_USER',SYSDATE, VCOD || ' - '|| VMES );
+END GET_USU_USER;
+
     
 // Funcion de traer productos
 CREATE OR REPLACE PROCEDURE GET_PRODUCTOS(p_activo IN NUMBER, p_resultado OUT SYS_REFCURSOR)

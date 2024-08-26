@@ -35,28 +35,4 @@ public String listado(Model model) {
     }
 
 
-    @GetMapping("/nuevo")
-    public String usuarioNuevo(Usuario usuario) {
-        return "/usuario/modifica";
-    }
-
-    @PostMapping("/guardar")
-    public String usuarioGuardar(Usuario usuario) {
-        usuarioService.actuzalizar_user(usuario);    
-        return "redirect:/usuario/listado";
-    }
-   
-
-    @GetMapping("/eliminar/{idUsuario}")
-    public String usuarioEliminar(Usuario usuario) {
-        usuarioService.delete(usuario);
-        return "redirect:/usuario/listado";
-    }
-
-    @GetMapping("/modificar/{idUsuario}")
-    public String usuarioModificar(Usuario usuario, Model model) {
-        usuario = usuarioService.getUsuario(usuario);
-        model.addAttribute("usuario", usuario);
-        return "/usuario/modifica";
-    }
 }

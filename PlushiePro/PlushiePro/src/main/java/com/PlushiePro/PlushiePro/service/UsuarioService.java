@@ -9,11 +9,8 @@ import com.PlushiePro.PlushiePro.domain.Usuario;
 
 public interface UsuarioService {
     
-    // Se obtiene un listado de usuarios en un List
-    public List<Usuario> getUsuarios();
     
-    // Se obtiene un Usuario, a partir del id de un usuario
-    public Usuario getUsuario(Usuario usuario);
+    
    
     
     // Se obtiene un Usuario, a partir del username de un usuario
@@ -28,14 +25,8 @@ public interface UsuarioService {
     // Se valida si existe un Usuario considerando el username
     public boolean existeUsuarioPorUsernameOCorreo(String username, String correo);
     
-    // Se inserta un nuevo usuario si el id del usuario esta vacío
-    // Se actualiza un usuario si el id del usuario NO esta vacío
-   
     
-    public void crear_user(Usuario usuario);
+     public void crear_user(Usuario usuario);
+     public void actualizar_user(Usuario usuario);
     
-    public void actuzalizar_user(Usuario usuario);
-    
-    // Se elimina el usuario que tiene el id pasado por parámetro
-    public void delete(Usuario usuario);
 }
