@@ -275,6 +275,35 @@ EXCEPTION
         VALUES (USER, 'GET_CATEGORIAS', SYSDATE, VCOD || ' - ' || VMES);
 END GET_CATEGORIAS; 
 
+-- Funcion de UsuarioDetailsImpl
+
+CREATE OR REPLACE FUNCTION GET_USUARIO_BY_USERNAME (
+    p_username IN VARCHAR2
+) RETURN SYS_REFCURSOR IS
+    resultado SYS_REFCURSOR;
+    VCOD NUMBER;
+    VMES VARCHAR2(500);
+BEGIN
+    OPEN resultado FOR
+    SELECT u.id_usuario, u.username, u.password, u.id_rol
+    FROM usuario u
+    WHERE u.username = p_username;
+
+    RETURN resultado;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        VMES := SQLERRM;
+        VCOD := SQLCODE;
+        INSERT INTO ERRORES_AUDIT (USUARIO, ORIGEN, FECHA, VERROR)
+        VALUES (USER, 'GET_USUARIO_BY_USERNAME', SYSDATE, VCOD || ' - ' || VMES);
+        RAISE;
+END GET_USUARIO_BY_USERNAME;
+
+
+
+
+
 
 --FUNCION PARA CREAR FACTURA
 
