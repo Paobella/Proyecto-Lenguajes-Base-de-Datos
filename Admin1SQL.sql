@@ -647,3 +647,46 @@ EXCEPTION
         INSERT INTO ERRORES_AUDIT (USUARIO, ORIGEN, FECHA, VERROR)
         VALUES (USER, 'FIND_PRODUCTO_BY_NOMBRE', SYSDATE, VCOD || ' - ' || VMES);
 END FIND_PRODUCTO_BY_NOMBRE;
+
+--Procedimiento que imprima la factura
+CREATE OR REPLACE PROCEDURE getFactura (
+    p_Id_Factura INT
+) IS
+    v_fecha  FACTURA.fecha%TYPE;
+    v_total  FACTURA.total%TYPE;
+    v_estado FACTURA.estado%TYPE;
+	v_mes     VARCHAR2(4000);
+    v_cod     NUMBER;
+BEGIN
+    -- Obtener los datos de la factura
+    SELECT fecha, total, estado
+    INTO v_fecha, v_total, v_estado
+    FROM FACTURA
+    WHERE Id_Factura = p_Id_Factura;
+
+    -- Imprimir la factura
+    DBMS_OUTPUT.PUT_LINE('=========================================');
+    DBMS_OUTPUT.PUT_LINE('                FACTURA                  ');
+    DBMS_OUTPUT.PUT_LINE('=========================================');
+    DBMS_OUTPUT.PUT_LINE('Factura ID:       ' || p_Id_Factura);
+    DBMS_OUTPUT.PUT_LINE('Fecha:            ' || TO_CHAR(v_fecha, 'DD-MON-YYYY'));
+    DBMS_OUTPUT.PUT_LINE('-----------------------------------------');
+    DBMS_OUTPUT.PUT_LINE('Total:            $' || TO_CHAR(v_total, '999,999.99'));
+    DBMS_OUTPUT.PUT_LINE('-----------------------------------------');
+    DBMS_OUTPUT.PUT_LINE('Estado:           ' || CASE v_estado
+                                           WHEN 1 THEN 'Activo'
+                                           ELSE 'Inactivo'
+                                       END);
+    DBMS_OUTPUT.PUT_LINE('=========================================');
+    DBMS_OUTPUT.PUT_LINE('  ¡Gracias por su compra!                ');
+    DBMS_OUTPUT.PUT_LINE('=========================================');
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No se encontró la factura con el ID ' || p_Id_Factura);
+    WHEN OTHERS THEN
+        v_mes := SQLERRM;
+        v_cod := SQLCODE;
+        INSERT INTO ERRORES_AUDIT VALUES (USER,'EXISTE_USU',SYSDATE, v_cod || ' - '|| v_mes);
+        DBMS_OUTPUT.PUT_LINE('Ocurrió un error: ' || vmes);
+END getFactura;
+/
