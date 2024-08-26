@@ -14,16 +14,16 @@ public class Producto implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="id_producto")
     private Long idProducto;
+    private Long idCategoria;
     private String nombre;
     private String descripcion;
     private double precio;
     private int existencias;
     private String rutaImagen;
+    @Column(name = "activo")
     private int activo;  // Cambiado de boolean a int
 
-    @ManyToOne
-    @JoinColumn(name="id_categoria")
-    Categoria categoria;
+    
 
     public Producto() {
     }

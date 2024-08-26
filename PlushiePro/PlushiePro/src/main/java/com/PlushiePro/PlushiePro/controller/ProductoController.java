@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.PlushiePro.PlushiePro.service.ProductoService;
 import java.util.List;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -26,28 +27,26 @@ public class ProductoController {
     @GetMapping("/listado")
     public String listado(@RequestParam(value = "nombre", required = false) String nombre,Model model) {
         System.out.println(nombre);
-        List<Producto> productos = null;
-
+        List<Producto> productos = productoService.getProductos(false);
+        
         if(nombre != null && !nombre.isEmpty()) {
              productos = productoService.findByNombreOrderByNombre(nombre);
         } else {
             System.out.println("entra");
              productos = productoService.getProductos(false);
         }
-        var categorias = categoriaService.getCategorias(false);
+      
         model.addAttribute("productos", productos);
         model.addAttribute("totalProductos", productos.size());
-        model.addAttribute("categorias", categorias);
         return "/producto/listado";
     }
     
       @GetMapping("/listado/{idCategoria}")
-    public String listado(Model model, Categoria categoria) {
-        var productos = categoriaService.getCategoria(categoria).getProductos();
-        var categorias = categoriaService.getCategorias(false);
+    public String listado(@PathVariable("idCategoria") Long idCategoria,Model model) {
+        List<Producto> productos = productoService.getProductosByCategoria(idCategoria);
+        
+
         model.addAttribute("productos", productos);
-        model.addAttribute("totalProductos", productos.size());
-        model.addAttribute("categorias", categorias);
         return "/producto/listado";
     }
         

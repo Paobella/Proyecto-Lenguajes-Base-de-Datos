@@ -24,5 +24,6 @@ public interface ProductoService {
     // Lista de productos con precio entre ordendados por descripción ConsultaAmpliada
     public List<Producto> findByNombreOrderByNombre(String nombre);
   
+    public List<Producto> getProductosByCategoria(Long idCategoria);
 
 }

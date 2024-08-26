@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "categoria")
+
 public class Categoria implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -16,30 +17,26 @@ public class Categoria implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_categoria")
     private Long idCategoria;
-
-    @Column(name = "nombre")
     private String nombre;
-
-    @Column(name = "tipo")
     private String tipo;
-
     @Column(name = "activo")
-    private int activo; // Esto se mapea a un int en la base de datos
+    private int activo;
 
-    @OneToMany(mappedBy = "categoria")
-    private List<Producto> productos;
-
-    public Categoria() {
+   
+       public Categoria() {
     }
 
-    public Categoria(String nombre, String tipo, boolean activo) {
-        this.nombre = nombre;
-        this.tipo = tipo;
-        this.activo = activo ? 1 : 0; // Conversion entre booleano y int
+    public Categoria(String categoria, boolean activo) {
+        this.tipo = categoria;
+        this.activo = activo ? 1 : 0;
     }
-
-    // Metodo de acceso personalizados para manejar la conversión
+    
+    // Metodo de acceso personalizados para manejar la conversion
     public boolean isActivo() {
         return this.activo == 1;
+    }
+        
+    public void setActivo(boolean activo) {
+        this.activo = activo ? 1 : 0;
     }
 }

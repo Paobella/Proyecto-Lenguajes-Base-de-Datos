@@ -25,7 +25,7 @@
                                     <div class="card-body">
                                         <div class="details">
                                             <h2 class="card-text" th:text="${producto.nombre}"></h2>
-                                            <span class="categories" th:text="'Categoría: ' + ${producto.categoria.nombre}"></span>
+                                            
                                             <span class="price" th:text="'Precio: ' + '$' + ${#numbers.formatDecimal(producto.precio, 1, 'DEFAULT', 2, 'DEFAULT')}"></span>
                                         </div>
                                         <div>

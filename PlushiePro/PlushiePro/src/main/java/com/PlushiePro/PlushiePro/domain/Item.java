@@ -14,7 +14,6 @@ public class Item extends Producto {
 
     public Item(Producto producto) {
         super.setIdProducto(producto.getIdProducto());
-        super.setCategoria(producto.getCategoria());
         super.setNombre(producto.getNombre());
         super.setDescripcion(producto.getDescripcion());
         super.setPrecio(producto.getPrecio());

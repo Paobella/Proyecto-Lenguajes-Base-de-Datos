@@ -18,19 +18,20 @@ import org.springframework.transaction.annotation.Transactional;
 import com.PlushiePro.PlushiePro.dao.UsuarioDao;
 import com.PlushiePro.PlushiePro.domain.Usuario;
 import com.PlushiePro.PlushiePro.service.UsuarioDetailsService;
+import com.PlushiePro.PlushiePro.service.UsuarioService;
 
 
 @Service("userDetailsService")
 public class UsuarioDetailsServiceImpl implements UsuarioDetailsService, UserDetailsService {
 
     @Autowired
-    private UsuarioDao usuarioDao;
+    private UsuarioService usuarioService;
    
 
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Usuario usuario = usuarioDao.findByUsername(username);
+        Usuario usuario = usuarioService.getUsuarioPorUsername(username);
         if (usuario == null) {
             throw new UsernameNotFoundException(username);
         }

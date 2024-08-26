@@ -13,5 +13,6 @@ public interface ProductoDao extends JpaRepository<Producto, Long> {
 
     
     public List<Producto> findByNombreOrderByNombre(String nombre);
-
+    
+    List<Producto> findByIdCategoria(Long idCategoria);
 }
